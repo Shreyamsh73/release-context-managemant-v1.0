@@ -97,3 +97,17 @@ def test_database_url_forms_are_normalized(raw):
 def test_invalid_store_value_fails():
     with pytest.raises(ValidationError):
         make_settings(store="sqlite")
+
+
+def test_env_example_parses_and_documents_every_setting():
+    from pathlib import Path
+
+    example = Path(__file__).parents[2] / ".env.example"
+    settings = Settings(_env_file=example)
+    assert settings.model_aliases == {"claude": "bedrock/converse/us.anthropic.claude-sonnet-4-6"}
+    assert settings.api_keys == []
+    assert settings.cors_origins == []
+    text = example.read_text()
+    assert "replace" in text.lower() and "bedrock console" in text.lower()
+    for name in Settings.model_fields:
+        assert f"CTX_{name.upper()}=" in text, f"{name} is missing from .env.example"

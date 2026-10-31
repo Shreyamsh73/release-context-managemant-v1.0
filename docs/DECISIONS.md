@@ -39,3 +39,12 @@ ambiguous and the simplest option was chosen. One line of reason per entry.
     behavior, but it uses the app passed to the queue and avoids importing the worker task
     module from the queue module. The `PARTIAL` self-deferral inside the task uses the task
     object as written in the spec.
+13. The compose `worker` and `migrate` services set `healthcheck: disable: true`, and the `worker`
+    also waits for Redis. Reason: the image `HEALTHCHECK` calls the HTTP port, which those
+    containers do not serve, and the worker must share the Redis cache so that its summary
+    writes invalidate cached windows.
+14. The README tells IDE users to add `X-Memory-Mode: stateful` as a request header. Reason:
+    with `auto` detection, the first message of a new chat has no assistant message yet, so it
+    is treated as stateless and lands in the shared `default` session.
+15. The README has no separate numbered "Migrations" section; the note is under Development.
+    Reason: spec 18 fixes the section list and its order.

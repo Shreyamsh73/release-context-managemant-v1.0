@@ -1,0 +1,75 @@
+# Context Gateway with Postgres, Redis, a migration step and a summary worker.
+# Copy .env.example to .env first, then run: docker compose up --build
+
+x-app: &app
+  build: .
+  env_file: .env
+  environment:
+    CTX_DATABASE_URL: postgresql://cg:cg@postgres:5432/cg
+    CTX_REDIS_URL: redis://redis:6379/0
+    CTX_JOB_BACKEND: procrastinate
+    AWS_ACCESS_KEY_ID:
+    AWS_SECRET_ACCESS_KEY:
+    AWS_SESSION_TOKEN:
+    AWS_REGION_NAME:
+    AWS_PROFILE:
+  volumes:
+    # Optional: use an AWS profile from the host. Remove this line if you use env vars.
+    - ${HOME}/.aws:/home/app/.aws:ro
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: cg
+      POSTGRES_PASSWORD: cg
+      POSTGRES_DB: cg
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cg -d cg"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  migrate:
+    <<: *app
+    command: ["context-gateway", "migrate"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+    healthcheck:
+      disable: true
+
+  gateway:
+    <<: *app
+    ports:
+      - "8080:8080"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
+  worker:
+    <<: *app
+    command: ["context-gateway", "worker"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    healthcheck:
+      disable: true
+
+volumes:
+  pgdata:
