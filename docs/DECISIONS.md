@@ -34,3 +34,8 @@ ambiguous and the simplest option was chosen. One line of reason per entry.
     `ttl_seconds`. Reason: spec 7.8 caches only when `max_turns` equals the configured default,
     so the decorator has to know that number. Only that one key per session is written, so
     invalidation deletes exactly that key.
+12. `ProcrastinateJobQueue` defers through `app.configure_task("summarize_session", ...)`
+    instead of importing the task and calling `summarize_session.configure(...)`. Reason: same
+    behavior, but it uses the app passed to the queue and avoids importing the worker task
+    module from the queue module. The `PARTIAL` self-deferral inside the task uses the task
+    object as written in the spec.

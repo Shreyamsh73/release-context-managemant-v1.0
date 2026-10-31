@@ -1,5 +1,3 @@
-import sys
-
 from context_gateway.core.tokens import HeuristicTokenCounter, make_token_counter
 
 
@@ -34,6 +32,6 @@ def test_heuristic_counter_handles_list_content_and_empty_input():
     assert counter.count([parts], None) == 5
 
 
-def test_heuristic_factory_does_not_import_litellm():
+def test_heuristic_factory_builds_the_heuristic_counter():
+    # Import laziness is checked in a clean subprocess in test_lazy_litellm.py.
     assert isinstance(make_token_counter("heuristic"), HeuristicTokenCounter)
-    assert "litellm" not in sys.modules

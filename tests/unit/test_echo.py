@@ -1,5 +1,3 @@
-import sys
-
 from context_gateway.core.stream import StreamAccumulator
 from context_gateway.core.summary import build_summary_prompt
 from context_gateway.core.types import Turn
@@ -86,8 +84,3 @@ async def test_echo_summary_request_gets_a_deterministic_summary():
     prompt = build_summary_prompt("- summary of 2 turns", [turns[0]])
     response = await llm.complete(model="m", messages=prompt, params={})
     assert response["choices"][0]["message"]["content"] == "- summary of 3 turns"
-
-
-async def test_echo_does_not_import_litellm():
-    await EchoLLMClient().close()
-    assert "litellm" not in sys.modules

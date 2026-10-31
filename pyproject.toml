@@ -59,6 +59,10 @@ ignore = ["B008"]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
+filterwarnings = [
+    # Third-party noise raised when LiteLLM builds its pydantic models.
+    "ignore:Item 'summary' on TypedDict class:UserWarning",
+]
 markers = [
     "integration: needs real Postgres/Redis (TEST_DATABASE_URL / TEST_REDIS_URL or Docker)",
 ]
