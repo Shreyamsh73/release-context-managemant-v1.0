@@ -30,3 +30,7 @@ ambiguous and the simplest option was chosen. One line of reason per entry.
    Reason: the spec says "headers also work" without giving the order.
 10. `PostgresSessionStore` takes the async SQLAlchemy URL (`postgresql+psycopg://`).
     Reason: keeps URL derivation in `Settings` only.
+11. `CachedSessionStore` takes a keyword-only `cache_max_turns` (default 200) next to
+    `ttl_seconds`. Reason: spec 7.8 caches only when `max_turns` equals the configured default,
+    so the decorator has to know that number. Only that one key per session is written, so
+    invalidation deletes exactly that key.
