@@ -47,6 +47,10 @@ line-length = 100
 target-version = "py312"
 src = ["src", "tests"]
 
+[tool.ruff.format]
+# Ruff 0.17 also formats code blocks inside Markdown. Keep CLAUDE.md and docs untouched.
+exclude = ["*.md"]
+
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM", "ASYNC", "RUF"]
 ignore = ["B008"]
